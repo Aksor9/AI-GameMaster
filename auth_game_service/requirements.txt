@@ -1,0 +1,15 @@
+# FastAPI web server
+fastapi
+uvicorn[standard]
+websockets # Required for WebSocket support
+
+# Pydantic for settings management
+pydantic-settings
+
+pika
+
+celery
+
+# PostgreSQL driver and ORM
+psycopg2-binary
+SQLAlchemy

@@ -1,0 +1,28 @@
+# Celery for task processing
+celery
+eventlet
+# redis # No longer strictly needed after removing backend config, but good to keep for future use
+
+# Pydantic for settings management
+pydantic-settings
+
+# AI Interaction
+google-generativeai
+instructor # To enforce Pydantic models on Gemini output
+
+# PostgreSQL driver
+psycopg2-binary
+SQLAlchemy
+
+# RabbitMQ communication (for publishing results)
+pika
+
+# For loading .env file in local test scripts
+python-dotenv
+
+# Vector Database client for RAG
+chromadb==0.4.24
+sentence-transformers
+
+# CRITICAL: Pin NumPy to a version compatible with our older chromadb version
+numpy<2.0

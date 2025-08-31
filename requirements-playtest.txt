@@ -1,0 +1,10 @@
+# Dependencies for the interactive playtest client.
+# Install with: pip install -r requirements-playtest.txt
+
+websockets
+
+# A powerful library for creating interactive command-line interfaces.
+prompt-toolkit
+
+# An async-capable HTTP client to make API requests.
+httpx
