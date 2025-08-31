@@ -1,4 +1,4 @@
-# Project: Narrador - AI-Powered Narrative RPG Engine 📜🏰🎲
+# AI - Game Master - AI-Powered Narrative RPG Engine 📜🏰🎲
 
 Welcome to Project Narrador, a backend engine for creating dynamic, AI-driven narrative role-playing games. This system uses a microservices architecture to manage game state, player actions, and AI-generated content, providing a flexible and robust foundation for immersive storytelling experiences.
 
