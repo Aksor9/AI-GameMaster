@@ -5,6 +5,7 @@ import threading
 import asyncio
 import time
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
 from .api.endpoints import router as api_router
 from .api.connection_manager import manager
@@ -15,6 +16,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Narrador - Auth & Game Service")
+
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+    "https://aksor9.github.io", 
+]
 
 def setup_rabbitmq_listener(loop: asyncio.AbstractEventLoop):
     """Sets up a robust, auto-reconnecting RabbitMQ consumer in a dedicated thread."""
