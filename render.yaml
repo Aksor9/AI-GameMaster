@@ -1,4 +1,4 @@
-# render.yaml - Versión 5.0 (Basada en la Documentación)
+# render.yaml - v7.1 - Añadido comando de arranque para el servicio web
 
 databases:
   - name: gm-postgres
@@ -7,54 +7,56 @@ databases:
     user: gm_user
 
 services:
-  # --- Servicios Privados (no accesibles desde fuera) ---
   - name: gm-rabbitmq
     type: web
-    runtime: image # SOLUCIÓN 1: Especifica que estamos usando una imagen preconstruida
+    runtime: image
     plan: free
     image:
       url: rabbitmq:3.13-management-alpine
 
   - name: gm-chromadb
     type: web
-    runtime: image # SOLUCIÓN 1: Especifica que estamos usando una imagen preconstruida
+    runtime: image
     plan: free
     image:
       url: chromadb/chroma:0.4.24
 
-  # --- Servicio Web Principal ---
+  # --- SERVICIO WEB PRINCIPAL ---
   - name: gm-auth-game-service
     type: web
     plan: free
     runtime: docker
     dockerfilePath: ./auth_game_service/Dockerfile
     dockerContext: ./auth_game_service
+    # --- INICIO DE LÍNEAS NUEVAS ---
+    # Le decimos a Render cómo arrancar Uvicorn.
+    # Usamos $PORT para que sea compatible con la red de Render.
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8001}
+    # --- FIN DE LÍNEAS NUEVAS ---
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: gm-postgres
           property: connectionString
-      # SOLUCIÓN 2 y 3: Construimos la URL de RabbitMQ manualmente
       - key: RABBITMQ_URL
         value: amqp://${gm-secrets.RABBITMQ_DEFAULT_USER}:${gm-secrets.RABBITMQ_DEFAULT_PASS}@${gm-rabbitmq.host}:5672/
       - fromGroup: gm-secrets
 
-  # --- Trabajador de Fondo ---
+  # --- TRABAJADOR DE FONDO (CONVERTIDO A WEB SERVICE) ---
   - name: gm-worker
     type: web
     plan: free
     runtime: docker
     dockerfilePath: ./gm_worker/Dockerfile
     dockerContext: ./gm_worker
-    # SOLUCIÓN 4: Cambiado 'startCommand' a 'dockerCommand'
-    dockerCommand: celery -A app.worker.celery_app worker -P eventlet -Q gm_tasks --concurrency=10 --loglevel=info
+    dockerCommand: ./start.sh
+    healthCheckPath: /
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: gm-postgres
           property: connectionString
-
       - key: RABBITMQ_URL
         value: amqp://${gm-secrets.RABBITMQ_DEFAULT_USER}:${gm-secrets.RABBITMQ_DEFAULT_PASS}@${gm-rabbitmq.host}:5672/
       - key: CHROMADB_HOST
@@ -69,7 +71,6 @@ services:
           property: port
       - fromGroup: gm-secrets
 
-# --- Grupo de Variables de Entorno Secretas ---
 envVarGroups:
   - name: gm-secrets
     envVars:
