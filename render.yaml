@@ -9,14 +9,14 @@ databases:
 services:
   # --- Servicios Privados (no accesibles desde fuera) ---
   - name: gm-rabbitmq
-    type: pserv
+    type: web
     runtime: image # SOLUCIÓN 1: Especifica que estamos usando una imagen preconstruida
     plan: free
     image:
       url: rabbitmq:3.13-management-alpine
 
   - name: gm-chromadb
-    type: pserv
+    type: web
     runtime: image # SOLUCIÓN 1: Especifica que estamos usando una imagen preconstruida
     plan: free
     image:
@@ -54,17 +54,17 @@ services:
         fromDatabase:
           name: gm-postgres
           property: connectionString
-      # SOLUCIÓN 2 y 3: Construimos la URL de RabbitMQ manualmente
+
       - key: RABBITMQ_URL
         value: amqp://${gm-secrets.RABBITMQ_DEFAULT_USER}:${gm-secrets.RABBITMQ_DEFAULT_PASS}@${gm-rabbitmq.host}:5672/
       - key: CHROMADB_HOST
         fromService:
-          type: pserv # SOLUCIÓN 3: Se requiere el tipo
+          type: web
           name: gm-chromadb
           property: host
       - key: CHROMADB_PORT
         fromService:
-          type: pserv # SOLUCIÓN 3: Se requiere el tipo
+          type: web
           name: gm-chromadb
           property: port
       - fromGroup: gm-secrets
