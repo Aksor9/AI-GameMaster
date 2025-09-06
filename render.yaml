@@ -42,7 +42,7 @@ services:
 
   # --- Trabajador de Fondo ---
   - name: gm-worker
-    type: worker
+    type: web
     plan: free
     runtime: docker
     dockerfilePath: ./gm_worker/Dockerfile

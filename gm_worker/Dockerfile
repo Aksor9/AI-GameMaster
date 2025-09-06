@@ -14,6 +14,14 @@ COPY ./requirements.txt .
 # Use --no-cache-dir to reduce image size
 RUN pip install --no-cache-dir -r requirements.txt
 
+###
+        # Render deploy ONLY
+COPY ./start.sh .
+RUN chmod +x ./start.sh
+
+###
+
+
 # Copy the rest of the application's source code from the host to the container's working directory
 COPY . .
 
