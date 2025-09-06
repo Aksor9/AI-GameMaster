@@ -1,4 +1,4 @@
-# render.yaml - Versión Final
+# render.yaml 
 
 # --- Definición de la Base de Datos ---
 databases:
@@ -10,13 +10,13 @@ databases:
 services:
   # --- Servicios Privados (no accesibles desde fuera) ---
   - name: gm-rabbitmq
-    type: pvt
+    type: pserv 
     plan: free
     image:
       url: rabbitmq:3.13-management-alpine
 
   - name: gm-chromadb
-    type: pvt
+    type: pserv 
     plan: free
     image:
       url: chromadb/chroma:0.4.24
@@ -36,7 +36,6 @@ services:
           property: connectionString
       - key: RABBITMQ_URL
         fromService:
-          # La línea 'type: pvt' ha sido eliminada de aquí.
           name: gm-rabbitmq
           property: connectionString
       - fromGroup: gm-secrets
@@ -81,6 +80,6 @@ envVarGroups:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: JWT_ALGORITHM
-        value: HS256
+        value: HS265
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: 30
