@@ -31,7 +31,7 @@ services:
     # --- INICIO DE LÍNEAS NUEVAS ---
     # Le decimos a Render cómo arrancar Uvicorn.
     # Usamos $PORT para que sea compatible con la red de Render.
-    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8001}
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     # --- FIN DE LÍNEAS NUEVAS ---
     healthCheckPath: /
     envVars:
