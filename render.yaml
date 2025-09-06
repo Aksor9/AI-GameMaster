@@ -1,16 +1,16 @@
-# render.yaml - Versión 3.0 (Corregida)
+# render.yaml - Versión Final
 
 # --- Definición de la Base de Datos ---
 databases:
   - name: gm-postgres
     plan: free
-    databaseName: gm_main_db # Nombre de la base de datos interna
-    user: gm_user # Nombre de usuario
+    databaseName: gm_main_db
+    user: gm_user
 
 services:
   # --- Servicios Privados (no accesibles desde fuera) ---
   - name: gm-rabbitmq
-    type: pvt 
+    type: pvt
     plan: free
     image:
       url: rabbitmq:3.13-management-alpine
@@ -31,12 +31,12 @@ services:
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
-        fromDatabase: 
+        fromDatabase:
           name: gm-postgres
           property: connectionString
       - key: RABBITMQ_URL
-        fromService: 
-          type: pvt
+        fromService:
+          # La línea 'type: pvt' ha sido eliminada de aquí.
           name: gm-rabbitmq
           property: connectionString
       - fromGroup: gm-secrets
@@ -63,7 +63,7 @@ services:
           name: gm-chromadb
           property: host
       - key: CHROMADB_PORT
-        fromService: 
+        fromService:
           name: gm-chromadb
           property: port
       - fromGroup: gm-secrets
@@ -73,7 +73,7 @@ envVarGroups:
   - name: gm-secrets
     envVars:
       - key: GEMINI_API_KEY
-        value: "YOUR_GEMINI_API_KEY_HERE" # Lo cambiaremos en la web de Render
+        value: "YOUR_GEMINI_API_KEY_HERE"
       - key: RABBITMQ_DEFAULT_USER
         generateValue: true
       - key: RABBITMQ_DEFAULT_PASS
