@@ -56,17 +56,14 @@ services:
           property: connectionString
       - key: RABBITMQ_URL
         fromService:
-          type: pvt
           name: gm-rabbitmq
           property: connectionString
       - key: CHROMADB_HOST
         fromService:
-          type: pvt
           name: gm-chromadb
           property: host
       - key: CHROMADB_PORT
         fromService: 
-          type: pvt
           name: gm-chromadb
           property: port
       - fromGroup: gm-secrets
