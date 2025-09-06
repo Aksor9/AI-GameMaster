@@ -1,14 +1,16 @@
-# render.yaml - Versión Corregida
+# render.yaml - Versión 3.0 (Corregida)
+
+# --- Definición de la Base de Datos ---
+databases:
+  - name: gm-postgres
+    plan: free
+    databaseName: gm_main_db # Nombre de la base de datos interna
+    user: gm_user # Nombre de usuario
 
 services:
-  # --- Base de Datos PostgreSQL ---
-  - name: gm-postgres
-    type: psql
-    plan: free
-
   # --- Servicios Privados (no accesibles desde fuera) ---
   - name: gm-rabbitmq
-    type: pvt
+    type: pvt 
     plan: free
     image:
       url: rabbitmq:3.13-management-alpine
@@ -29,12 +31,11 @@ services:
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
-        fromService:
-          # type: psql # <-- LÍNEA ELIMINADA
+        fromDatabase: 
           name: gm-postgres
           property: connectionString
       - key: RABBITMQ_URL
-        fromService:
+        fromService: 
           type: pvt
           name: gm-rabbitmq
           property: connectionString
@@ -50,8 +51,7 @@ services:
     startCommand: celery -A app.worker.celery_app worker -P eventlet -Q gm_tasks --concurrency=10 --loglevel=info
     envVars:
       - key: DATABASE_URL
-        fromService:
-          # type: psql # <-- LÍNEA ELIMINADA
+        fromDatabase:
           name: gm-postgres
           property: connectionString
       - key: RABBITMQ_URL
@@ -65,7 +65,7 @@ services:
           name: gm-chromadb
           property: host
       - key: CHROMADB_PORT
-        fromService:
+        fromService: 
           type: pvt
           name: gm-chromadb
           property: port
@@ -76,13 +76,7 @@ envVarGroups:
   - name: gm-secrets
     envVars:
       - key: GEMINI_API_KEY
-        value: "gemini_api_key" # Lo cambiaremos en la web de Render
-      - key: POSTGRES_USER
-        generateValue: true
-      - key: POSTGRES_PASSWORD
-        generateValue: true
-      - key: POSTGGSRES_DB
-        value: gm_main_db
+        value: "YOUR_GEMINI_API_KEY_HERE" # Lo cambiaremos en la web de Render
       - key: RABBITMQ_DEFAULT_USER
         generateValue: true
       - key: RABBITMQ_DEFAULT_PASS
