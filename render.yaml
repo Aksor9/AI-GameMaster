@@ -1,4 +1,4 @@
-# render.yaml
+# render.yaml - Versión Corregida
 
 services:
   # --- Base de Datos PostgreSQL ---
@@ -24,14 +24,13 @@ services:
     type: web
     plan: free
     env: docker
-
     dockerfilePath: ./auth_game_service/Dockerfile
     dockerContext: ./auth_game_service
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
         fromService:
-          type: psql
+          # type: psql # <-- LÍNEA ELIMINADA
           name: gm-postgres
           property: connectionString
       - key: RABBITMQ_URL
@@ -46,14 +45,13 @@ services:
     type: worker
     plan: free
     env: docker
-
     dockerfilePath: ./gm_worker/Dockerfile
     dockerContext: ./gm_worker
     startCommand: celery -A app.worker.celery_app worker -P eventlet -Q gm_tasks --concurrency=10 --loglevel=info
     envVars:
       - key: DATABASE_URL
         fromService:
-          type: psql
+          # type: psql # <-- LÍNEA ELIMINADA
           name: gm-postgres
           property: connectionString
       - key: RABBITMQ_URL
@@ -83,7 +81,7 @@ envVarGroups:
         generateValue: true
       - key: POSTGRES_PASSWORD
         generateValue: true
-      - key: POSTGRES_DB
+      - key: POSTGGSRES_DB
         value: gm_main_db
       - key: RABBITMQ_DEFAULT_USER
         generateValue: true
