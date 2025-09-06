@@ -1,0 +1,97 @@
+# render.yaml
+
+services:
+  # --- Base de Datos PostgreSQL ---
+  - name: gm-postgres
+    type: psql
+    plan: free
+
+  # --- Servicios Privados (no accesibles desde fuera) ---
+  - name: gm-rabbitmq
+    type: pvt
+    plan: free
+    image:
+      url: rabbitmq:3.13-management-alpine
+
+  - name: gm-chromadb
+    type: pvt
+    plan: free
+    image:
+      url: chromadb/chroma:0.4.24
+
+  # --- Servicio Web Principal (el que se conecta al frontend) ---
+  - name: gm-auth-game-service
+    type: web
+    plan: free
+    env: docker
+
+    dockerfilePath: ./auth_game_service/Dockerfile
+    dockerContext: ./auth_game_service
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: psql
+          name: gm-postgres
+          property: connectionString
+      - key: RABBITMQ_URL
+        fromService:
+          type: pvt
+          name: gm-rabbitmq
+          property: connectionString
+      - fromGroup: gm-secrets
+
+  # --- Trabajador de Fondo (el que procesa la IA) ---
+  - name: gm-worker
+    type: worker
+    plan: free
+    env: docker
+
+    dockerfilePath: ./gm_worker/Dockerfile
+    dockerContext: ./gm_worker
+    startCommand: celery -A app.worker.celery_app worker -P eventlet -Q gm_tasks --concurrency=10 --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: psql
+          name: gm-postgres
+          property: connectionString
+      - key: RABBITMQ_URL
+        fromService:
+          type: pvt
+          name: gm-rabbitmq
+          property: connectionString
+      - key: CHROMADB_HOST
+        fromService:
+          type: pvt
+          name: gm-chromadb
+          property: host
+      - key: CHROMADB_PORT
+        fromService:
+          type: pvt
+          name: gm-chromadb
+          property: port
+      - fromGroup: gm-secrets
+
+# --- Grupo de Variables de Entorno Secretas ---
+envVarGroups:
+  - name: gm-secrets
+    envVars:
+      - key: GEMINI_API_KEY
+        value: "gemini_api_key" # Lo cambiaremos en la web de Render
+      - key: POSTGRES_USER
+        generateValue: true
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+      - key: POSTGRES_DB
+        value: gm_main_db
+      - key: RABBITMQ_DEFAULT_USER
+        generateValue: true
+      - key: RABBITMQ_DEFAULT_PASS
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
